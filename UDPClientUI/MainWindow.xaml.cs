@@ -21,9 +21,11 @@ namespace UDPClientUI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    
 
     public partial class MainWindow : Window
     {
+        private string username;
         private readonly Dispatcher _uiDispatcher;
         public struct UdpState
         {
@@ -31,11 +33,16 @@ namespace UDPClientUI
             public EndPoint e;
         }
 
-        private UdpState transmitter = new UdpState();
+        private UdpState transmitter;
 
-        public MainWindow()
+        public MainWindow(string username)
         {
             InitializeComponent();
+            Show();
+            this.username = username;
+            //Window1 login = new Window1();
+            //login.Show();
+            //Close();
             _uiDispatcher = Dispatcher.CurrentDispatcher;
         }
 
@@ -50,17 +57,9 @@ namespace UDPClientUI
             if (!string.IsNullOrWhiteSpace(IPPORT.Text) && IPPORT.Text.Contains(':'))
             {
                 string IPandPORT = IPPORT.Text;
-                Socket soketti = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                string[] IP = IPandPORT.Split(':');
-                IPAddress[] addresses = Dns.GetHostAddresses(IP[0]);
-                IPEndPoint end = new IPEndPoint(addresses[0], int.Parse(IP[1]));
-                EndPoint senderRemote = (EndPoint)end;
-                transmitter.e = senderRemote;
-                transmitter.u = soketti;
-
-
-
-                soketti.SendTo(System.Text.Encoding.ASCII.GetBytes("connecting;"), transmitter.e);
+                transmitter = makesocket(IPandPORT);
+                
+                transmitter.u.SendTo(System.Text.Encoding.ASCII.GetBytes("Connect;"+username), transmitter.e);
                 Task.Factory.StartNew(() => ReceiveMessages(IPandPORT));
 
 
@@ -90,7 +89,7 @@ namespace UDPClientUI
 
 
         /// <summary>
-        /// 
+        /// handles receiving messages and updates the chat
         /// </summary>
         /// <param name="ipandport">String containing the IP and port that is been connected to</param>
         private void ReceiveMessages(string ipandport)
@@ -110,9 +109,13 @@ namespace UDPClientUI
             }
 
 
-            //Chat.Items.Add(receiveString);
         }
 
+
+        /// <summary>
+        /// calls the thread that main application runs on and updates the chat
+        /// </summary>
+        /// <param name="message">the message that is added to the chatbox</param>
         private void updateChat(string message)
         {
             if (!_uiDispatcher.CheckAccess())
@@ -120,12 +123,14 @@ namespace UDPClientUI
                 _uiDispatcher.BeginInvoke(DispatcherPriority.Normal, () => { updateChat(message); });
                 return;
             }
-            Chat.Items.Add(message);
+            string[] data = message.Split(';');
+            if(data.Length > 1) Chat.Items.Add(data[0]+": "+data[1]);
+            else Chat.Items.Add(message);
         }
 
         private void ButtonSend_Click(object sender, RoutedEventArgs e)
         {
-            transmitter.u.SendTo(System.Text.Encoding.ASCII.GetBytes(Message.Text), transmitter.e);
+            transmitter.u.SendTo(Encoding.ASCII.GetBytes("Message;"+username +';'+ Message.Text), transmitter.e);
             Message.Clear();
         }
     }
