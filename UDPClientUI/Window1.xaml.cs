@@ -42,7 +42,10 @@ namespace UDPClientUI
         /// <param name="e">Not used</param>
         private void LoginClick(object sender, RoutedEventArgs e)
         {
+            /*
+            code for a login that will not be used in this assignment
             UdpState udpState = makesocket("192.168.8.100:25000");
+            //sql injection risk fix later
             udpState.u.SendTo(System.Text.Encoding.ASCII.GetBytes("Login;"+username.Text+';'+password.Text), udpState.e);
             int byteamount = 0;
             byte[] rec = new byte[3000];
@@ -58,7 +61,9 @@ namespace UDPClientUI
             {
                 MessageBox.Show("Invalid login");
             }
-
+            */
+            MainWindow window = new MainWindow(username.Text);
+            Close();
         }
         /// <summary>
         /// Is called when user clicks the Register button
@@ -67,7 +72,9 @@ namespace UDPClientUI
         /// <param name="e">Not used</param>
         private void RegisterClick(object sender, RoutedEventArgs e)
         {
+            /* Registering that will not be used
             UdpState udpState = makesocket("192.168.8.100:25000");
+            //sql injection rist fix later
             udpState.u.SendTo(System.Text.Encoding.ASCII.GetBytes("Register;" + username.Text + ';' + password.Text), udpState.e);
             int byteamount = 0;
             byte[] rec = new byte[3000];
@@ -83,6 +90,7 @@ namespace UDPClientUI
             {
                 MessageBox.Show("Invalid registeration");
             }
+            */
         }
 
 
